@@ -1,0 +1,31 @@
+(import (chibi) (chibi match)
+	(lib misc)
+	(utils) (opers) (atoms))
+
+(define (evil-prop x v)
+  (match x
+    ('B 'B )
+    ('T 'T )
+    ((? symbol?)  (v x) )
+    (('~ p)   (lnot       (evil-prop p v)) )
+    (('& p q) (land       (evil-prop p v)  (evil-prop q v)) )
+    (('/ p q) (lior       (evil-prop p v)  (evil-prop q v)) )
+    (('> p q) (lior (lnot (evil-prop p v)) (evil-prop q v)) )
+    (('= p q) (leql       (evil-prop p v)  (evil-prop q v)) )
+    ) )
+
+(define (onallvals s v ats)
+  (match ats
+    (() (s v) )
+    ((p . ps)
+     (let ( ... v ... )
+       (land (onallvals s (v 'B) ps)
+	     (onallvals s (v 'T) ps))) )) )
+
+(define (v n)  (match n ('p 'T) ('q 'B) ('r 'T)))
+(define (v0 n) (match n ('p 'T) ('q 'T) ('r 'B)))
+(define (main args)
+  (define (I n) n)
+  (dspln (evil-prop '(> (& p q) (& q r)) v0))
+  (dspln (atoms '(> (/ (& p q) s) (/ (~ p) (= r s)))))
+  (dsp ""))
